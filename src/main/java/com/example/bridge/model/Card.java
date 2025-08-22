@@ -1,7 +1,12 @@
 package com.example.bridge.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Represents a playing card in a standard 52-card deck")
 public class Card {
+    @Schema(description = "The rank of the card (e.g., ACE, KING, QUEEN)", example = "ACE")
     private final Rank rank;
+    @Schema(description = "The suit of the card (SPADES, HEARTS, DIAMONDS, CLUBS)", example = "SPADES")
     private final Suit suit;
 
     public Card(Rank rank, Suit suit) {
