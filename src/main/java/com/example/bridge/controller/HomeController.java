@@ -25,6 +25,12 @@ public class HomeController {
                     <h1>Welcome to Bridge Bid Quiz API</h1>
                     <p>This service provides bridge bidding suggestions based on the current hand and auction.</p>
                     
+                    <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                        <h3>API Documentation</h3>
+                        <p>Explore and test the API using our interactive documentation:</p>
+                        <a href="/swagger-ui.html" class="btn btn-primary" style="display: inline-block; padding: 8px 16px; background: #0d6efd; color: white; text-decoration: none; border-radius: 4px;">Open Swagger UI</a>
+                    </div>
+                    
                     <h2>Available Endpoints</h2>
                     
                     <h3>POST /api/bids/suggest</h3>

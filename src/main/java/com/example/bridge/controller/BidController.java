@@ -3,12 +3,18 @@ package com.example.bridge.controller;
 import com.example.bridge.dto.BidRequest;
 import com.example.bridge.dto.BidResponse;
 import com.example.bridge.service.BridgeBiddingService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/api/bids", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Bid API", description = "API for bridge bidding operations")
 public class BidController {
 
     private final BridgeBiddingService biddingService;
@@ -60,6 +66,21 @@ public class BidController {
             """;
     }
 
+    @Operation(
+        summary = "Get a suggested bid",
+        description = "Returns a suggested bid based on the current hand and auction state",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Successful operation",
+                content = @Content(schema = @Schema(implementation = BidResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "Invalid input"
+            )
+        }
+    )
     @PostMapping(path = "/suggest", consumes = MediaType.APPLICATION_JSON_VALUE)
     public BidResponse suggest(@Valid @RequestBody BidRequest request) {
         return biddingService.suggestBid(request);
