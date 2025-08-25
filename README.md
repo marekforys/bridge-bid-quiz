@@ -1,5 +1,7 @@
 # Bridge Bid Quiz
 
+[![CI](https://github.com/marekforys/bridge-bid-quiz/actions/workflows/gradle.yml/badge.svg)](https://github.com/marekforys/bridge-bid-quiz/actions/workflows/gradle.yml)
+[![codecov](https://codecov.io/gh/marekforys/bridge-bid-quiz/branch/main/graph/badge.svg)](https://codecov.io/gh/marekforys/bridge-bid-quiz)
 [![OpenAPI Documentation](https://img.shields.io/badge/OpenAPI-Documentation-85EA2D?logo=swagger)](http://localhost:8080/swagger-ui.html)
 
 Bridge bidding quiz system with automated bidding suggestions.
