@@ -75,6 +75,7 @@ public class BidController {
   -d '{
     "hand": "AKQJ.T987.AK.QJ9",
     "position": "N",
+    "convention": "natural",
     "vulnerability": "None",
     "auction": ["1C", "PASS", "1H", "PASS"]
   }'</pre>
@@ -106,10 +107,8 @@ public class BidController {
                     name = "Sample Response",
                     value = """
                     {
-                      "suggestedBid": "1NT",
-                      "confidence": 0.85,
-                      "alternativeBids": ["2H", "PASS"],
-                      "explanation": "Balanced hand with 15 HCP, suggesting 1NT"
+                      "suggestedBid": "PASS",
+                      "explanation": "Stub based on convention='natural'. Implement full logic using hand, position, vulnerability, and auction."
                     }
                     """
                 )

@@ -17,6 +17,7 @@ class BridgeBiddingServiceTest {
         BidRequest req = new BidRequest(
                 "AKQJ.T987.AK.QJ9",
                 "N",
+                "natural",
                 "None",
                 List.of("1C", "PASS", "1H", "PASS")
         );

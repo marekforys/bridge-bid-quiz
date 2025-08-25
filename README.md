@@ -134,6 +134,7 @@ gradlew.bat clean build
     {
       "hand": "AKQJ.T987.AK.QJ9",
       "position": "N",
+      "convention": "natural",
       "vulnerability": "None",
       "auction": ["1C", "PASS", "1H", "PASS"]
     }
@@ -147,6 +148,9 @@ gradlew.bat clean build
       "explanation": "This is a placeholder suggestion. Implement bidding logic based on hand, position, vulnerability, and auction."
     }
     ```
+
+  - Notes:
+    - `convention` controls the bidding system used for suggestions. Examples: `natural`, `precision`, `polish club`. The current implementation uses a simple stub to demonstrate behavior.
 
 ## Project Structure
 
