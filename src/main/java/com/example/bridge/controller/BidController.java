@@ -2,6 +2,8 @@ package com.example.bridge.controller;
 
 import com.example.bridge.dto.BidRequest;
 import com.example.bridge.dto.BidResponse;
+import com.example.bridge.dto.CheckBidRequest;
+import com.example.bridge.dto.CheckBidResponse;
 import com.example.bridge.service.BridgeBiddingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -139,5 +141,54 @@ public class BidController {
             @Parameter(description = "Bid request details", required = true)
             @Valid @RequestBody BidRequest request) {
         return ResponseEntity.ok(biddingService.suggestBid(request));
+    }
+
+    @Operation(
+        summary = "Check a bid according to a convention",
+        description = "Validates a proposed bid against the current hand, position, previous bids (auction), and bidding convention. The main field is 'proposedBid'."
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successful operation",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = CheckBidResponse.class),
+                examples = @ExampleObject(
+                    name = "Sample Response",
+                    value = """
+                    {
+                      "suggestedBid": "1C",
+                      "explanation": "Check stub for proposedBid='1C' based on convention='precision'. Implement rule validation against given auction."
+                    }
+                    """
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid input",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    name = "Error Response",
+                    value = """
+                    {
+                      "timestamp": "2023-07-20T12:00:00.000+00:00",
+                      "status": 400,
+                      "error": "Bad Request",
+                      "message": "Validation failed",
+                      "path": "/api/bids/check"
+                    }
+                    """
+                )
+            )
+        )
+    })
+    @PostMapping("/check")
+    public ResponseEntity<CheckBidResponse> checkBid(
+            @Parameter(description = "Check bid request details", required = true)
+            @Valid @RequestBody CheckBidRequest request) {
+        return ResponseEntity.ok(biddingService.checkBid(request));
     }
 }

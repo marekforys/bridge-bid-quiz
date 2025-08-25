@@ -2,6 +2,8 @@ package com.example.bridge.service;
 
 import com.example.bridge.dto.BidRequest;
 import com.example.bridge.dto.BidResponse;
+import com.example.bridge.dto.CheckBidRequest;
+import com.example.bridge.dto.CheckBidResponse;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,5 +32,29 @@ public class BridgeBiddingService {
 
         String explanation = "Stub based on convention='" + request.convention() + "'. Implement full logic using hand, position, vulnerability, and auction.";
         return new BidResponse(suggested, explanation);
+    }
+
+    public CheckBidResponse checkBid(CheckBidRequest request) {
+        // For now, mirror suggest logic but keep response type distinct for future extension.
+        String convention = request.convention() == null ? "" : request.convention().trim().toLowerCase();
+        String suggested;
+        switch (convention) {
+            case "precision", "polish club", "polish-club", "polish", "strong club", "strong-club":
+                suggested = "1C";
+                break;
+            case "2/1", "two-over-one", "2-over-1":
+                suggested = "1H";
+                break;
+            case "acol":
+                suggested = "1H";
+                break;
+            case "natural", "std american", "standard american", "sayc":
+                suggested = "PASS";
+                break;
+            default:
+                suggested = "PASS";
+        }
+        String explanation = "Check stub for proposedBid='" + request.proposedBid() + "' based on convention='" + request.convention() + "'. Implement rule validation against given auction.";
+        return new CheckBidResponse(suggested, explanation);
     }
 }
