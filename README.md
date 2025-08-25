@@ -1,3 +1,28 @@
+## Frontend (React)
+
+- Location: `frontend/` (Vite + React 18)
+- Dev server proxies `/_api` to backend: configured in `frontend/vite.config.js` as `/api -> http://localhost:8080`
+
+Run backend:
+
+```bash
+./gradlew bootRun
+```
+
+Run frontend:
+
+```bash
+cd frontend
+npm install
+npm run dev
+# open http://localhost:5173
+```
+
+The UI flow:
+- Fetches a quiz hand from `GET /api/bids/quiz`.
+- Accepts your proposed bid.
+- Sends it to `POST /api/bids/check`.
+- Displays the check result with suggested optimal bid and explanation.
 
 ### POST /api/bids/check
 

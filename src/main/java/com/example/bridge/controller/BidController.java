@@ -4,6 +4,7 @@ import com.example.bridge.dto.BidRequest;
 import com.example.bridge.dto.BidResponse;
 import com.example.bridge.dto.CheckBidRequest;
 import com.example.bridge.dto.CheckBidResponse;
+import com.example.bridge.dto.QuizHandResponse;
 import com.example.bridge.service.BridgeBiddingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,6 +38,21 @@ public class BidController {
 
     public BidController(BridgeBiddingService biddingService) {
         this.biddingService = biddingService;
+    }
+
+    @Operation(
+        summary = "Get a quiz hand",
+        description = "Returns a stubbed bridge hand with position, convention and auction to drive the quiz UI"
+    )
+    @GetMapping("/quiz")
+    public ResponseEntity<QuizHandResponse> getQuizHand() {
+        QuizHandResponse payload = new QuizHandResponse(
+                "AKQJ.T987.AK.QJ9",
+                "N",
+                "precision",
+                java.util.List.of("PASS", "PASS", "PASS")
+        );
+        return ResponseEntity.ok(payload);
     }
 
     @Operation(
