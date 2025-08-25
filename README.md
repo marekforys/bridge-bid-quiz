@@ -97,6 +97,34 @@ The API documentation is automatically generated from the source code. After mak
 gradlew.bat clean build
 ```
 
+## Testing
+
+- Run tests locally:
+
+  ```bash
+  # Linux/macOS
+  ./gradlew test
+
+  # Windows
+  gradlew.bat test
+  ```
+
+- Run a single test class or method:
+
+  ```bash
+  ./gradlew test --tests "com.example.bridge.service.HandGeneratorServiceTest"
+  ./gradlew test --tests "com.example.bridge.service.HandGeneratorServiceTest.generateDeal_returnsValidDealStructure"
+  ```
+
+- Test reports:
+  - XML: `build/test-results/test/`
+  - HTML: `build/reports/tests/test/index.html`
+
+- Continuous Integration (GitHub Actions):
+  - Workflow: `.github/workflows/gradle.yml`
+  - Steps: runs `./gradlew test`, then `./gradlew build -x test`
+  - Artifacts uploaded on every run: `test-reports` (contains XML and HTML reports)
+
 ## API
 
 - POST `/api/bids/suggest`
