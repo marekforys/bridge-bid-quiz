@@ -2,6 +2,8 @@ package com.example.bridge.controller;
 
 import com.example.bridge.dto.BidRequest;
 import com.example.bridge.dto.BidResponse;
+import com.example.bridge.dto.CheckBidRequest;
+import com.example.bridge.dto.CheckBidResponse;
 import com.example.bridge.service.BridgeBiddingService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,6 +70,44 @@ class BidControllerTest {
                 "\n  \"auction\": [\"1C\", \"PASS\"]\n}";
 
         mockMvc.perform(post("/api/bids/suggest")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidBody))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("POST /api/bids/check returns check result")
+    void checkBid_returnsResponse() throws Exception {
+        Mockito.when(biddingService.checkBid(any(CheckBidRequest.class)))
+                .thenReturn(new CheckBidResponse("1C", "stub-check"));
+
+        String body = "{" +
+                "\n  \"proposedBid\": \"1C\"," +
+                "\n  \"hand\": \"AKQJ.T987.AK.QJ9\"," +
+                "\n  \"position\": \"N\"," +
+                "\n  \"convention\": \"precision\"," +
+                "\n  \"auction\": [\"PASS\", \"PASS\", \"PASS\"]\n}";
+
+        mockMvc.perform(post("/api/bids/check")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.suggestedBid").value("1C"))
+                .andExpect(jsonPath("$.explanation").value("stub-check"));
+    }
+
+    @Test
+    @DisplayName("POST /api/bids/check with missing proposedBid returns 400")
+    void checkBid_validationError_missingProposedBid() throws Exception {
+        String invalidBody = "{" +
+                // proposedBid is missing
+                "\n  \"hand\": \"AKQJ.T987.AK.QJ9\"," +
+                "\n  \"position\": \"N\"," +
+                "\n  \"convention\": \"precision\"," +
+                "\n  \"auction\": [\"PASS\", \"PASS\", \"PASS\"]\n}";
+
+        mockMvc.perform(post("/api/bids/check")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidBody))
                 .andExpect(status().isBadRequest());

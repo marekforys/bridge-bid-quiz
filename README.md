@@ -1,3 +1,29 @@
+
+### POST /api/bids/check
+
+- Validates a proposed bid against hand, position, previous bids (auction), and a bidding convention.
+- Main field: `proposedBid`.
+
+Request example:
+
+```json
+{
+  "proposedBid": "1C",
+  "hand": "AKQJ.T987.AK.QJ9",
+  "position": "N",
+  "convention": "precision",
+  "auction": ["PASS", "PASS", "PASS"]
+}
+```
+
+Response example:
+
+```json
+{
+  "suggestedBid": "1C",
+  "explanation": "Check stub for proposedBid='1C' based on convention='precision'. Implement rule validation against given auction."
+}
+```
 # Bridge Bid Quiz
 
 [![CI](https://github.com/marekforys/bridge-bid-quiz/actions/workflows/gradle.yml/badge.svg)](https://github.com/marekforys/bridge-bid-quiz/actions/workflows/gradle.yml)
