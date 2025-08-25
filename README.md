@@ -1,9 +1,29 @@
-# bridge-bid-quiz
-Bridge bidding quiz system
+# Bridge Bid Quiz
+
+[![OpenAPI Documentation](https://img.shields.io/badge/OpenAPI-Documentation-85EA2D?logo=swagger)](http://localhost:8080/swagger-ui.html)
+
+Bridge bidding quiz system with automated bidding suggestions.
 
 ## Overview
 
-Backend REST service built with Spring Boot (Java 17) and Gradle. It exposes an endpoint to suggest a bridge bid based on the hand and current auction. Current logic is a stub you can extend.
+Backend REST service built with Spring Boot (Java 17) and Gradle. It provides endpoints for bridge bidding suggestions, quizzes, and hand evaluation. The API is fully documented using OpenAPI 3.0 and can be explored interactively using the Swagger UI.
+
+## API Documentation
+
+The API is documented using OpenAPI 3.0. You can access the interactive documentation in several ways:
+
+### Swagger UI
+- **URL**: http://localhost:8080/swagger-ui.html
+- **Features**:
+  - Interactive API exploration
+  - Try-it-out functionality for all endpoints
+  - Request/response schemas
+  - Authentication configuration (if applicable)
+
+### OpenAPI JSON
+- **URL**: http://localhost:8080/v3/api-docs
+- **Format**: Raw OpenAPI 3.0 specification in JSON format
+- **Usage**: Can be imported into API clients like Postman or used for code generation
 
 ## Requirements
 
@@ -28,6 +48,54 @@ Backend REST service built with Spring Boot (Java 17) and Gradle. It exposes an 
    - Windows: `gradlew.bat bootRun`
 
 The service starts on `http://localhost:8080`.
+
+## API Documentation Access
+
+Once the application is running, you can access the API documentation at:
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **OpenAPI JSON**: http://localhost:8080/v3/api-docs
+
+## Adding API Documentation to New Endpoints
+
+To document a new endpoint, use the following annotations:
+
+```java
+@Operation(
+    summary = "Get bidding suggestion",
+    description = "Suggests the best bid based on the current hand and auction"
+)
+@ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved bidding suggestion"),
+    @ApiResponse(responseCode = "400", description = "Invalid input")
+})
+@PostMapping("/suggest")
+public ResponseEntity<BidSuggestion> suggestBid(@RequestBody BidRequest request) {
+    // Implementation
+}
+```
+
+## Customizing the Documentation
+
+You can customize the API documentation by modifying the `OpenApiConfig` class in the `config` package. This includes:
+- API version information
+- Server configurations
+- Contact information
+- License details
+- Global security schemes
+
+## Development
+
+### Rebuilding API Documentation
+
+The API documentation is automatically generated from the source code. After making changes to the API or its documentation, rebuild the project to update the documentation:
+
+```bash
+# Linux/macOS
+./gradlew clean build
+
+# Windows
+gradlew.bat clean build
+```
 
 ## API
 

@@ -4,17 +4,31 @@ import com.example.bridge.dto.BidRequest;
 import com.example.bridge.dto.BidResponse;
 import com.example.bridge.service.BridgeBiddingService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+/**
+ * REST controller for handling bridge bidding operations.
+ * Provides endpoints for getting bidding suggestions based on the current hand and auction state.
+ */
 
 @RestController
 @RequestMapping(path = "/api/bids", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Bid API", description = "API for bridge bidding operations")
+@Tag(
+    name = "Bid API",
+    description = "Operations related to bridge bidding suggestions and analysis"
+)
+@SecurityRequirement(name = "bearerAuth")
 public class BidController {
 
     private final BridgeBiddingService biddingService;
@@ -23,6 +37,17 @@ public class BidController {
         this.biddingService = biddingService;
     }
 
+    @Operation(
+        summary = "Welcome page",
+        description = "Returns a simple HTML welcome page with API documentation",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Welcome page HTML",
+                content = @Content(mediaType = "text/html")
+            )
+        }
+    )
     @GetMapping("/")
     public String welcome() {
         return """
@@ -68,21 +93,52 @@ public class BidController {
 
     @Operation(
         summary = "Get a suggested bid",
-        description = "Returns a suggested bid based on the current hand and auction state",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Successful operation",
-                content = @Content(schema = @Schema(implementation = BidResponse.class))
-            ),
-            @ApiResponse(
-                responseCode = "400",
-                description = "Invalid input"
-            )
-        }
+        description = "Returns a suggested bid based on the current hand and auction state"
     )
-    @PostMapping(path = "/suggest", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public BidResponse suggest(@Valid @RequestBody BidRequest request) {
-        return biddingService.suggestBid(request);
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successful operation",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = BidResponse.class),
+                examples = @ExampleObject(
+                    name = "Sample Response",
+                    value = """
+                    {
+                      "suggestedBid": "1NT",
+                      "confidence": 0.85,
+                      "alternativeBids": ["2H", "PASS"],
+                      "explanation": "Balanced hand with 15 HCP, suggesting 1NT"
+                    }
+                    """
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid input",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    name = "Error Response",
+                    value = """
+                    {
+                      "timestamp": "2023-07-20T12:00:00.000+00:00",
+                      "status": 400,
+                      "error": "Bad Request",
+                      "message": "Invalid hand format",
+                      "path": "/api/bids/suggest"
+                    }
+                    """
+                )
+            )
+        )
+    })
+    @PostMapping("/suggest")
+    public ResponseEntity<BidResponse> suggestBid(
+            @Parameter(description = "Bid request details", required = true)
+            @Valid @RequestBody BidRequest request) {
+        return ResponseEntity.ok(biddingService.suggestBid(request));
     }
 }

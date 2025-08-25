@@ -8,52 +8,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String welcome() {
-        return """
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Bridge Bid Quiz API</title>
-                <style>
-                    body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
-                    code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; }
-                    pre { background: #f8f8f8; padding: 10px; border-radius: 5px; overflow-x: auto; }
-                    .container { max-width: 800px; margin: 0 auto; }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <h1>Welcome to Bridge Bid Quiz API</h1>
-                    <p>This service provides bridge bidding suggestions based on the current hand and auction.</p>
-                    
-                    <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px;">
-                        <h3>API Documentation</h3>
-                        <p>Explore and test the API using our interactive documentation:</p>
-                        <a href="/swagger-ui.html" class="btn btn-primary" style="display: inline-block; padding: 8px 16px; background: #0d6efd; color: white; text-decoration: none; border-radius: 4px;">Open Swagger UI</a>
-                    </div>
-                    
-                    <h2>Available Endpoints</h2>
-                    
-                    <h3>POST /api/bids/suggest</h3>
-                    <p>Get a suggested bid based on the current hand and auction.</p>
-                    
-                    <h4>Example Request</h4>
-                    <pre>curl -X POST http://localhost:8080/api/bids/suggest \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "hand": "AKQJ.T987.AK.QJ9",
-    "position": "N",
-    "vulnerability": "None",
-    "auction": ["1C", "PASS", "1H", "PASS"]
-  }'</pre>
-                    
-                    <h4>Example Response</h4>
-                    <pre>{
-  "suggestedBid": "PASS",
-  "explanation": "This is a placeholder suggestion. Implement bidding logic based on hand, position, vulnerability, and auction."
-}</pre>
-                </div>
-            </body>
-            </html>
-            """;
+        // Redirect root to Swagger UI (springdoc exposes /swagger-ui.html which redirects to /swagger-ui/index.html)
+        return "redirect:/swagger-ui.html";
     }
 }
