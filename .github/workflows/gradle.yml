@@ -36,8 +36,22 @@ jobs:
     - name: Make gradlew executable
       run: chmod +x ./gradlew
 
-    - name: Build with Gradle Wrapper
-      run: ./gradlew build
+    - name: Run unit tests
+      run: ./gradlew test
+
+    - name: Upload test reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-reports
+        path: |
+          build/test-results/test
+          build/reports/tests/test
+        if-no-files-found: ignore
+        retention-days: 7
+
+    - name: Build (skip tests)
+      run: ./gradlew build -x test
 
     # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
     # If your project does not have the Gradle Wrapper configured, you can use the following configuration to run Gradle with a specified version.
