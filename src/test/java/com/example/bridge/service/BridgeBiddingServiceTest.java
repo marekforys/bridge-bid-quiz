@@ -103,4 +103,33 @@ class BridgeBiddingServiceTest {
         BidResponse resp = service.suggestBid(req);
         assertEquals("1C", resp.suggestedBid());
     }
+
+    @Test
+    void polishClub_12to14Balanced_opens1C() {
+        // 12-14 balanced opens 1C in Polish Club
+        // Example ~13 HCP: S: KQ73 (5), H: KJ3 (3), D: Q98 (2), C: QJ9 (2) => 12
+        BidRequest req = new BidRequest(
+                "KQ73.KJ3.Q98.QJ9",
+                "N",
+                "polish club",
+                "None",
+                List.of()
+        );
+        BidResponse resp = service.suggestBid(req);
+        assertEquals("1C", resp.suggestedBid());
+    }
+
+    @Test
+    void polishClub_15to17Balanced_opens1NT() {
+        // 15-17 balanced still 1NT in Polish Club
+        BidRequest req = new BidRequest(
+                "AK73.QJ3.Q98.KJ9",
+                "N",
+                "polish club",
+                "None",
+                List.of()
+        );
+        BidResponse resp = service.suggestBid(req);
+        assertEquals("1NT", resp.suggestedBid());
+    }
 }

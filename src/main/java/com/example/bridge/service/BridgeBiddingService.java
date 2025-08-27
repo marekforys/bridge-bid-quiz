@@ -44,7 +44,8 @@ public class BridgeBiddingService {
     private String normalizeConvention(String convention) {
         if (convention == null) return "natural";
         String c = convention.trim().toLowerCase();
-        if (c.contains("precision") || c.contains("polish") || c.contains("strong")) return "precision";
+        if (c.contains("precision") || c.contains("strong")) return "precision";
+        if (c.contains("polish")) return "polish-club";
         if (c.contains("2/1") || c.contains("two-over-one") || c.contains("2-over-1")) return "2/1";
         if (c.contains("acol")) return "acol";
         if (c.contains("sayc") || c.contains("standard") || c.contains("std")) return "natural";
@@ -60,6 +61,17 @@ public class BridgeBiddingService {
         if ("precision".equals(convention)) {
             if (ha.hcp >= 16) return "1C"; // strong club
             // fallthrough to natural logic for limited hands
+        }
+
+        if ("polish-club".equals(convention)) {
+            if (isBalanced(ha) && ha.hcp >= 15 && ha.hcp <= 17) return "1NT"; // PC still 1NT for 15-17
+            if (isBalanced(ha) && ha.hcp >= 12 && ha.hcp <= 14) return "1C";  // 12-14 balanced 1C
+            if (ha.hcp >= 12) {
+                char ls = ha.longest5PlusSuit();
+                if (ls != '\0') return "1" + suitSymbolToBid(ls);
+                return "1" + (ha.counts.get('C') >= ha.counts.get('D') ? 'C' : 'D');
+            }
+            return "PASS";
         }
 
         if ("natural".equals(convention) || "2/1".equals(convention) || "precision".equals(convention)) {
