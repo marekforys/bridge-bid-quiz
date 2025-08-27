@@ -9,6 +9,32 @@ function App() {
   const [selectedConvention, setSelectedConvention] = useState('')
   const CONV_KEY = 'bbq.convention'
 
+  const BID_OPTIONS = React.useMemo(() => {
+    const opts = ['PASS']
+    const suits = ['C', 'D', 'H', 'S', 'NT']
+    for (let lvl = 1; lvl <= 7; lvl++) {
+      for (const s of suits) opts.push(`${lvl}${s}`)
+    }
+    return opts
+  }, [])
+
+  const formatBidLabel = (b) => {
+    if (b === 'PASS') return 'PASS'
+    const m = b.match(/^([1-7])(C|D|H|S|NT)$/)
+    if (!m) return b
+    const [, lvl, s] = m
+    const sym = s === 'C' ? '♣' : s === 'D' ? '♦' : s === 'H' ? '♥' : s === 'S' ? '♠' : 'NT'
+    return s === 'NT' ? `${lvl}NT` : `${lvl} ${sym}`
+  }
+
+  const bidColor = (b) => {
+    const m = b.match(/^(PASS|[1-7](C|D|H|S|NT))$/)
+    if (!m) return undefined
+    const suit = b.endsWith('NT') ? 'NT' : b.slice(-1)
+    if (suit === 'H' || suit === 'D') return '#c00'
+    return undefined
+  }
+
   const HandDisplay = ({ hand }) => {
     const parts = (hand || '').trim().split('.')
     const [sp, he, di, cl] = [parts[0] || '', parts[1] || '', parts[2] || '', parts[3] || '']
@@ -136,18 +162,22 @@ function App() {
           </div>
           <p><strong>Previous bids:</strong> {quiz.auction && quiz.auction.length ? quiz.auction.join(', ') : '—'}</p>
 
-          <form onSubmit={submitBid} style={{ marginTop: 16 }}>
-            <label>
-              Your proposed bid: {' '}
-              <input
+          <form onSubmit={submitBid} style={{ marginTop: 16, display: 'flex', gap: 12, alignItems: 'center' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              Your proposed bid:
+              <select
                 value={proposedBid}
                 onChange={(e) => setProposedBid(e.target.value)}
-                placeholder="e.g. 1C, 1H, PASS"
                 style={{ padding: '6px 8px', fontSize: 16 }}
                 required
-              />
+              >
+                <option value="" disabled>Select bid…</option>
+                {BID_OPTIONS.map(b => (
+                  <option key={b} value={b} style={{ color: bidColor(b) }}>{formatBidLabel(b)}</option>
+                ))}
+              </select>
             </label>
-            <button type="submit" style={{ marginLeft: 12, padding: '6px 12px' }}>Check</button>
+            <button type="submit" style={{ padding: '6px 12px' }}>Check</button>
           </form>
 
           {result && (
