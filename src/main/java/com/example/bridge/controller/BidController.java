@@ -6,6 +6,7 @@ import com.example.bridge.dto.CheckBidRequest;
 import com.example.bridge.dto.CheckBidResponse;
 import com.example.bridge.dto.QuizHandResponse;
 import com.example.bridge.service.BridgeBiddingService;
+import com.example.bridge.service.HandGeneratorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -35,9 +36,11 @@ import org.springframework.web.bind.annotation.*;
 public class BidController {
 
     private final BridgeBiddingService biddingService;
+    private final HandGeneratorService handGeneratorService;
 
-    public BidController(BridgeBiddingService biddingService) {
+    public BidController(BridgeBiddingService biddingService, HandGeneratorService handGeneratorService) {
         this.biddingService = biddingService;
+        this.handGeneratorService = handGeneratorService;
     }
 
     @Operation(
@@ -46,8 +49,17 @@ public class BidController {
     )
     @GetMapping("/quiz")
     public ResponseEntity<QuizHandResponse> getQuizHand() {
+        var deal = handGeneratorService.generateDeal();
+        // Prefer North hand if available; fall back to any hand string
+        String hand = deal.getHands().getOrDefault(
+                // try enum name "N"/"NORTH" variants if model uses different keys
+                deal.getHands().keySet().stream().filter(k -> k.toString().startsWith("N")).findFirst().orElseGet(
+                        () -> deal.getHands().keySet().iterator().next()
+                ),
+                deal.getHands().values().iterator().next()
+        );
         QuizHandResponse payload = new QuizHandResponse(
-                "AKQJ.T987.AK.QJ9",
+                hand,
                 "N",
                 "precision",
                 java.util.List.of("PASS", "PASS", "PASS")
