@@ -61,7 +61,7 @@ public class BidController {
         QuizHandResponse payload = new QuizHandResponse(
                 hand,
                 "N",
-                "precision",
+                "polish club",
                 java.util.List.of("PASS", "PASS", "PASS")
         );
         return ResponseEntity.ok(payload);
