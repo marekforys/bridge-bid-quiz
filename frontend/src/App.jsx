@@ -6,6 +6,7 @@ function App() {
   const [quiz, setQuiz] = useState(null)
   const [proposedBid, setProposedBid] = useState('')
   const [result, setResult] = useState(null)
+  const [selectedConvention, setSelectedConvention] = useState('')
 
   const fetchQuiz = async () => {
     try {
@@ -17,6 +18,7 @@ function App() {
       if (!res.ok) throw new Error(`Failed to load quiz (${res.status})`)
       const data = await res.json()
       setQuiz(data)
+      setSelectedConvention(data?.convention || '')
     } catch (e) {
       setError(e.message || 'Failed to load quiz')
     } finally {
@@ -38,7 +40,7 @@ function App() {
         proposedBid,
         hand: quiz.hand,
         position: quiz.position,
-        convention: quiz.convention,
+        convention: selectedConvention || quiz.convention,
         auction: quiz.auction,
       }
       const res = await fetch('/api/bids/check', {
@@ -74,7 +76,23 @@ function App() {
 {quiz.hand}
           </pre>
           <p><strong>Position:</strong> {quiz.position}</p>
-          <p><strong>Convention:</strong> {quiz.convention}</p>
+          <div style={{ margin: '8px 0' }}>
+            <label>
+              <strong>Convention: </strong>
+              <select
+                value={selectedConvention}
+                onChange={(e) => setSelectedConvention(e.target.value)}
+                disabled={loading}
+                style={{ marginLeft: 6, padding: '6px 8px' }}
+              >
+                <option value="natural">Natural (SAYC)</option>
+                <option value="2/1">2/1 Game Force</option>
+                <option value="precision">Precision (Strong Club)</option>
+                <option value="polish club">Polish Club</option>
+                <option value="acol">Acol</option>
+              </select>
+            </label>
+          </div>
           <p><strong>Previous bids:</strong> {quiz.auction && quiz.auction.length ? quiz.auction.join(', ') : '—'}</p>
 
           <form onSubmit={submitBid} style={{ marginTop: 16 }}>
