@@ -132,4 +132,19 @@ class BridgeBiddingServiceTest {
         BidResponse resp = service.suggestBid(req);
         assertEquals("1NT", resp.suggestedBid());
     }
+
+    @Test
+    void suggestOpeningBid_polishClub_12to14Balanced_returns1C() {
+        // ~12 HCP balanced -> 1C in Polish Club
+        String hand = "KQ73.KJ3.Q98.QJ9"; // ~12 HCP, balanced
+        String bid = service.suggestOpeningBid(hand, "polish club");
+        assertEquals("1C", bid);
+    }
+
+    @Test
+    void suggestOpeningBid_precision_16Plus_returns1C() {
+        String hand = "AK73.QJ3.Q98.KJ9"; // 16 HCP
+        String bid = service.suggestOpeningBid(hand, "precision");
+        assertEquals("1C", bid);
+    }
 }

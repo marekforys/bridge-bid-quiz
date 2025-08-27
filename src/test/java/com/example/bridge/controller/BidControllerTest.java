@@ -4,6 +4,8 @@ import com.example.bridge.dto.BidRequest;
 import com.example.bridge.dto.BidResponse;
 import com.example.bridge.dto.CheckBidRequest;
 import com.example.bridge.dto.CheckBidResponse;
+import com.example.bridge.model.HandPosition;
+import com.example.bridge.model.Deal;
 import com.example.bridge.service.BridgeBiddingService;
 import com.example.bridge.service.HandGeneratorService;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -39,6 +42,38 @@ class BidControllerTest {
         mockMvc.perform(get("/api/bids/"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Bridge Bid Quiz API")));
+    }
+
+    @Test
+    @DisplayName("GET /api/bids/quiz builds auction from dealer to North using simulated openings")
+    void getQuizHand_buildsAuctionFromDealerToNorth() throws Exception {
+        // Prepare deterministic deal: Dealer = EAST. Order of seats: E, S, W, N
+        java.util.Map<HandPosition, String> hands = new java.util.EnumMap<>(HandPosition.class);
+        hands.put(HandPosition.NORTH, "AKQJ.T987.AK.QJ9");
+        hands.put(HandPosition.EAST,  "KQ73.KJ3.Q98.QJ9");
+        hands.put(HandPosition.SOUTH, "QJ32.764.AKJ.832");
+        hands.put(HandPosition.WEST,  "A954.AQ2.7654.K4");
+        Deal deal = new Deal(HandPosition.EAST, hands);
+
+        Mockito.when(handGeneratorService.generateDeal()).thenReturn(deal);
+
+        // Mock opening suggestions for seats before North: E, S, W
+        Mockito.when(biddingService.suggestOpeningBid(eq(hands.get(HandPosition.EAST)), eq("polish club")))
+                .thenReturn("1C");
+        Mockito.when(biddingService.suggestOpeningBid(eq(hands.get(HandPosition.SOUTH)), eq("polish club")))
+                .thenReturn("PASS");
+        Mockito.when(biddingService.suggestOpeningBid(eq(hands.get(HandPosition.WEST)), eq("polish club")))
+                .thenReturn("PASS");
+
+        mockMvc.perform(get("/api/bids/quiz"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.position").value("N"))
+                .andExpect(jsonPath("$.hand").value(hands.get(HandPosition.NORTH)))
+                .andExpect(jsonPath("$.convention").value("polish club"))
+                .andExpect(jsonPath("$.auction[0]").value("1C"))
+                .andExpect(jsonPath("$.auction[1]").value("PASS"))
+                .andExpect(jsonPath("$.auction[2]").value("PASS"));
     }
 
     @Test
