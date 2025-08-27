@@ -5,6 +5,7 @@ import com.example.bridge.dto.BidResponse;
 import com.example.bridge.dto.CheckBidRequest;
 import com.example.bridge.dto.CheckBidResponse;
 import com.example.bridge.dto.QuizHandResponse;
+import com.example.bridge.model.HandPosition;
 import com.example.bridge.service.BridgeBiddingService;
 import com.example.bridge.service.HandGeneratorService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,19 +51,29 @@ public class BidController {
     @GetMapping("/quiz")
     public ResponseEntity<QuizHandResponse> getQuizHand() {
         var deal = handGeneratorService.generateDeal();
-        // Prefer North hand if available; fall back to any hand string
-        String hand = deal.getHands().getOrDefault(
-                // try enum name "N"/"NORTH" variants if model uses different keys
-                deal.getHands().keySet().stream().filter(k -> k.toString().startsWith("N")).findFirst().orElseGet(
-                        () -> deal.getHands().keySet().iterator().next()
-                ),
-                deal.getHands().values().iterator().next()
-        );
+
+        // User always answers as North
+        String northHand = deal.getHands().get(HandPosition.NORTH);
+
+        // Convention used for simulation
+        String convention = "polish club";
+
+        // Build initial auction from Dealer up to but not including North
+        java.util.List<String> auction = new java.util.ArrayList<>();
+        HandPosition dealer = deal.getDealer();
+        HandPosition cursor = dealer;
+        while (cursor != HandPosition.NORTH) {
+            String h = deal.getHands().get(cursor);
+            String bid = biddingService.suggestOpeningBid(h, convention);
+            auction.add(bid);
+            cursor = cursor.next();
+        }
+
         QuizHandResponse payload = new QuizHandResponse(
-                hand,
+                northHand,
                 "N",
-                "polish club",
-                java.util.List.of("PASS", "PASS", "PASS")
+                convention,
+                auction
         );
         return ResponseEntity.ok(payload);
     }

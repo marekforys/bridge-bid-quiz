@@ -39,6 +39,16 @@ public class BridgeBiddingService {
         return new CheckBidResponse(suggested, explanation);
     }
 
+    /**
+     * Public helper used by controllers to get an opening bid for a given hand/convention.
+     * Auction context is ignored; this returns an opening only.
+     */
+    public String suggestOpeningBid(String hand, String convention) {
+        HandAnalysis ha = analyzeHand(hand);
+        String conv = normalizeConvention(convention);
+        return suggestOpening(conv, ha);
+    }
+
     // --- Simple evaluation and suggestion helpers ---
 
     private String normalizeConvention(String convention) {
