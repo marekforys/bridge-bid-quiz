@@ -5,6 +5,7 @@ import com.example.bridge.dto.BidResponse;
 import com.example.bridge.dto.CheckBidRequest;
 import com.example.bridge.dto.CheckBidResponse;
 import com.example.bridge.service.BridgeBiddingService;
+import com.example.bridge.service.HandGeneratorService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -28,6 +29,9 @@ class BidControllerTest {
 
     @MockBean
     private BridgeBiddingService biddingService;
+
+    @MockBean
+    private HandGeneratorService handGeneratorService;
 
     @Test
     @DisplayName("GET /api/bids/ returns welcome HTML")

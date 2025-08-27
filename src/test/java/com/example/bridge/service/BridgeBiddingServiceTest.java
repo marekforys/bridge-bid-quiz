@@ -13,7 +13,7 @@ class BridgeBiddingServiceTest {
     private final BridgeBiddingService service = new BridgeBiddingService();
 
     @Test
-    void suggestBid_returnsPassWithExplanation_stub() {
+    void suggestBid_returnsSuggestionWithReasoning() {
         BidRequest req = new BidRequest(
                 "AKQJ.T987.AK.QJ9",
                 "N",
@@ -25,8 +25,11 @@ class BridgeBiddingServiceTest {
         BidResponse resp = service.suggestBid(req);
 
         assertNotNull(resp, "response should not be null");
-        assertEquals("PASS", resp.suggestedBid(), "default stub should return PASS");
+        assertNotNull(resp.suggestedBid());
+        assertFalse(resp.suggestedBid().isBlank(), "should suggest a non-empty bid");
         assertNotNull(resp.explanation());
         assertFalse(resp.explanation().isBlank());
+        assertTrue(resp.explanation().contains("HCP="), "explanation should include HCP");
+        assertTrue(resp.explanation().contains("dist="), "explanation should include distribution summary");
     }
 }
