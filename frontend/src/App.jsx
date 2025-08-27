@@ -7,6 +7,7 @@ function App() {
   const [proposedBid, setProposedBid] = useState('')
   const [result, setResult] = useState(null)
   const [selectedConvention, setSelectedConvention] = useState('')
+  const CONV_KEY = 'bbq.convention'
 
   const HandDisplay = ({ hand }) => {
     const parts = (hand || '').trim().split('.')
@@ -39,7 +40,11 @@ function App() {
       if (!res.ok) throw new Error(`Failed to load quiz (${res.status})`)
       const data = await res.json()
       setQuiz(data)
-      setSelectedConvention(data?.convention || '')
+      // If user has no saved selection yet, fall back to quiz default
+      const saved = localStorage.getItem(CONV_KEY)
+      if (!saved) {
+        setSelectedConvention(data?.convention || 'natural')
+      }
     } catch (e) {
       setError(e.message || 'Failed to load quiz')
     } finally {
@@ -48,6 +53,11 @@ function App() {
   }
 
   useEffect(() => {
+    // Initialize convention from localStorage if present
+    try {
+      const saved = localStorage.getItem(CONV_KEY)
+      if (saved) setSelectedConvention(saved)
+    } catch (_) { /* ignore */ }
     fetchQuiz()
   }, [])
 
@@ -108,7 +118,11 @@ function App() {
               <strong>Convention: </strong>
               <select
                 value={selectedConvention}
-                onChange={(e) => setSelectedConvention(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value
+                  setSelectedConvention(val)
+                  try { localStorage.setItem(CONV_KEY, val) } catch (_) { /* ignore */ }
+                }}
                 disabled={loading}
                 style={{ marginLeft: 6, padding: '6px 8px' }}
               >
