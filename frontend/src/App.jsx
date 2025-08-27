@@ -7,21 +7,24 @@ function App() {
   const [proposedBid, setProposedBid] = useState('')
   const [result, setResult] = useState(null)
 
-  useEffect(() => {
-    const fetchQuiz = async () => {
-      try {
-        setLoading(true)
-        setError('')
-        const res = await fetch('/api/bids/quiz')
-        if (!res.ok) throw new Error(`Failed to load quiz (${res.status})`)
-        const data = await res.json()
-        setQuiz(data)
-      } catch (e) {
-        setError(e.message || 'Failed to load quiz')
-      } finally {
-        setLoading(false)
-      }
+  const fetchQuiz = async () => {
+    try {
+      setLoading(true)
+      setError('')
+      setResult(null)
+      setProposedBid('')
+      const res = await fetch('/api/bids/quiz')
+      if (!res.ok) throw new Error(`Failed to load quiz (${res.status})`)
+      const data = await res.json()
+      setQuiz(data)
+    } catch (e) {
+      setError(e.message || 'Failed to load quiz')
+    } finally {
+      setLoading(false)
     }
+  }
+
+  useEffect(() => {
     fetchQuiz()
   }, [])
 
@@ -54,6 +57,12 @@ function App() {
   return (
     <div style={{ maxWidth: 900, margin: '2rem auto', fontFamily: 'system-ui, Arial' }}>
       <h1>Bridge Bid Quiz</h1>
+
+      <div style={{ margin: '0.5rem 0 1rem' }}>
+        <button onClick={fetchQuiz} disabled={loading} style={{ padding: '6px 12px' }}>
+          {loading ? 'Loading…' : 'New Question'}
+        </button>
+      </div>
 
       {loading && <p>Loading quiz…</p>}
       {error && <p style={{ color: 'crimson' }}>{error}</p>}
