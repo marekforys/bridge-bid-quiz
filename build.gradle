@@ -44,6 +44,10 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    // Ensure tests execute on Java 17, not the Gradle daemon JVM
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 // Ensure runtime tasks (like bootRun) also use Java 17, not the daemon JVM
