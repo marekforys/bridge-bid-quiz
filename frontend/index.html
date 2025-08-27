@@ -4,6 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bridge Bid Quiz</title>
+    <style>
+      :root {
+        --felt-dark: #0b5d36;
+        --felt-mid: #0f7a45;
+        --felt-light: #139155;
+        --panel-bg: rgba(255, 255, 255, 0.92);
+        --text: #0b1b12;
+      }
+      html, body, #root { height: 100%; }
+      body {
+        margin: 0;
+        color: var(--text);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        /* Felt-like background using layered radial gradients */
+        background:
+          radial-gradient(60% 100% at 20% 0%, rgba(255,255,255,0.05), rgba(0,0,0,0) 70%),
+          radial-gradient(50% 80% at 80% 20%, rgba(255,255,255,0.04), rgba(0,0,0,0) 70%),
+          linear-gradient(160deg, var(--felt-dark), var(--felt-mid) 50%, var(--felt-light));
+        background-attachment: fixed;
+      }
+      a { color: #0a6bff; }
+      * { box-sizing: border-box; }
+    </style>
   </head>
   <body>
     <div id="root"></div>

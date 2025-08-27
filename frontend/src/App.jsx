@@ -78,7 +78,15 @@ function App() {
   }
 
   return (
-    <div style={{ maxWidth: 900, margin: '2rem auto', fontFamily: 'system-ui, Arial' }}>
+    <div style={{
+      maxWidth: 900,
+      margin: '2rem auto',
+      fontFamily: 'system-ui, Arial',
+      background: 'var(--panel-bg)',
+      borderRadius: 12,
+      padding: 16,
+      boxShadow: '0 8px 24px rgba(0,0,0,0.18)'
+    }}>
       <h1>Bridge Bid Quiz</h1>
 
       <div style={{ margin: '0.5rem 0 1rem' }}>
