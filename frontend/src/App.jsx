@@ -56,6 +56,16 @@ function App() {
     )
   }
 
+  const computeHcp = (hand) => {
+    if (!hand) return 0
+    const points = { A: 4, K: 3, Q: 2, J: 1 }
+    let total = 0
+    for (const ch of hand.replaceAll('.', '')) {
+      if (points[ch]) total += points[ch]
+    }
+    return total
+  }
+
   const fetchQuiz = async () => {
     try {
       setLoading(true)
@@ -136,7 +146,19 @@ function App() {
 
       {quiz && (
         <div style={{ border: '1px solid #ddd', borderRadius: 8, padding: 16 }}>
-          <h2>Hand</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            Hand
+            <span style={{
+              fontSize: 14,
+              background: '#eef6ee',
+              border: '1px solid #cfe6cf',
+              padding: '2px 8px',
+              borderRadius: 999,
+              color: '#0b5d36'
+            }}>
+              HCP: {computeHcp(quiz.hand)}
+            </span>
+          </h2>
           <HandDisplay hand={quiz.hand} />
           <p><strong>Position:</strong> {quiz.position}</p>
           <div style={{ margin: '8px 0' }}>
