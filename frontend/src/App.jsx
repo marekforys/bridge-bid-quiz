@@ -8,6 +8,27 @@ function App() {
   const [result, setResult] = useState(null)
   const [selectedConvention, setSelectedConvention] = useState('')
 
+  const HandDisplay = ({ hand }) => {
+    const parts = (hand || '').trim().split('.')
+    const [sp, he, di, cl] = [parts[0] || '', parts[1] || '', parts[2] || '', parts[3] || '']
+    const rows = [
+      { sym: '♠', text: sp, color: '#111' },
+      { sym: '♥', text: he, color: '#c00' },
+      { sym: '♦', text: di, color: '#c00' },
+      { sym: '♣', text: cl, color: '#111' },
+    ]
+    return (
+      <div style={{ background: '#f8f8f8', padding: 12, borderRadius: 6, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' }}>
+        {rows.map((r, i) => (
+          <div key={i} style={{ lineHeight: 1.6 }}>
+            <span style={{ color: r.color, fontWeight: 700, display: 'inline-block', width: 20 }}>{r.sym}</span>
+            <span>{r.text && r.text !== '-' ? r.text : '—'}</span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   const fetchQuiz = async () => {
     try {
       setLoading(true)
@@ -72,9 +93,7 @@ function App() {
       {quiz && (
         <div style={{ border: '1px solid #ddd', borderRadius: 8, padding: 16 }}>
           <h2>Hand</h2>
-          <pre style={{ background: '#f8f8f8', padding: 12 }}>
-{quiz.hand}
-          </pre>
+          <HandDisplay hand={quiz.hand} />
           <p><strong>Position:</strong> {quiz.position}</p>
           <div style={{ margin: '8px 0' }}>
             <label>
