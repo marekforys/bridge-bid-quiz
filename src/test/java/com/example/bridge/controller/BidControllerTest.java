@@ -45,6 +45,45 @@ class BidControllerTest {
     }
 
     @Test
+    @DisplayName("GET /api/bids/quiz when dealer is NORTH returns empty auction")
+    void getQuizHand_dealerNorth_emptyAuction() throws Exception {
+        java.util.Map<HandPosition, String> hands = new java.util.EnumMap<>(HandPosition.class);
+        hands.put(HandPosition.NORTH, "AKQJ.T987.AK.QJ9");
+        hands.put(HandPosition.EAST,  "KQ73.KJ3.Q98.QJ9");
+        hands.put(HandPosition.SOUTH, "QJ32.764.AKJ.832");
+        hands.put(HandPosition.WEST,  "A954.AQ2.7654.K4");
+        Deal deal = new Deal(HandPosition.NORTH, hands);
+
+        Mockito.when(handGeneratorService.generateDeal()).thenReturn(deal);
+
+        mockMvc.perform(get("/api/bids/quiz"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.position").value("N"))
+                .andExpect(jsonPath("$.auction").isArray())
+                .andExpect(jsonPath("$.auction.length() ").value(0));
+    }
+
+    @Test
+    @DisplayName("GET /api/bids/quiz when dealer is WEST includes only WEST bid before North")
+    void getQuizHand_dealerWest_singleBid() throws Exception {
+        java.util.Map<HandPosition, String> hands = new java.util.EnumMap<>(HandPosition.class);
+        hands.put(HandPosition.NORTH, "AKQJ.T987.AK.QJ9");
+        hands.put(HandPosition.EAST,  "KQ73.KJ3.Q98.QJ9");
+        hands.put(HandPosition.SOUTH, "QJ32.764.AKJ.832");
+        hands.put(HandPosition.WEST,  "A954.AQ2.7654.K4");
+        Deal deal = new Deal(HandPosition.WEST, hands);
+
+        Mockito.when(handGeneratorService.generateDeal()).thenReturn(deal);
+        Mockito.when(biddingService.suggestOpeningBid(eq(hands.get(HandPosition.WEST)), eq("polish club")))
+                .thenReturn("1NT");
+
+        mockMvc.perform(get("/api/bids/quiz"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.auction[0]").value("1NT"))
+                .andExpect(jsonPath("$.auction.length() ").value(1));
+    }
+
+    @Test
     @DisplayName("GET /api/bids/quiz builds auction from dealer to North using simulated openings")
     void getQuizHand_buildsAuctionFromDealerToNorth() throws Exception {
         // Prepare deterministic deal: Dealer = EAST. Order of seats: E, S, W, N
