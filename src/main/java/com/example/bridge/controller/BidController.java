@@ -8,6 +8,7 @@ import com.example.bridge.dto.QuizHandResponse;
 import com.example.bridge.model.HandPosition;
 import com.example.bridge.service.BridgeBiddingService;
 import com.example.bridge.service.HandGeneratorService;
+import com.example.bridge.service.QuizDealService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -38,10 +39,12 @@ public class BidController {
 
     private final BridgeBiddingService biddingService;
     private final HandGeneratorService handGeneratorService;
+    private final QuizDealService quizDealService;
 
-    public BidController(BridgeBiddingService biddingService, HandGeneratorService handGeneratorService) {
+    public BidController(BridgeBiddingService biddingService, HandGeneratorService handGeneratorService, QuizDealService quizDealService) {
         this.biddingService = biddingService;
         this.handGeneratorService = handGeneratorService;
+        this.quizDealService = quizDealService;
     }
 
     @Operation(
@@ -68,6 +71,9 @@ public class BidController {
             auction.add(bid);
             cursor = cursor.next();
         }
+
+        // Persist the generated quiz deal
+        quizDealService.save(deal, convention, auction);
 
         QuizHandResponse payload = new QuizHandResponse(
                 northHand,

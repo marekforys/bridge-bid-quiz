@@ -8,6 +8,7 @@ import com.example.bridge.model.HandPosition;
 import com.example.bridge.model.Deal;
 import com.example.bridge.service.BridgeBiddingService;
 import com.example.bridge.service.HandGeneratorService;
+import com.example.bridge.service.QuizDealService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -35,6 +36,9 @@ class BidControllerTest {
 
     @MockBean
     private HandGeneratorService handGeneratorService;
+
+    @MockBean
+    private QuizDealService quizDealService;
 
     @Test
     @DisplayName("GET /api/bids/ returns welcome HTML")
