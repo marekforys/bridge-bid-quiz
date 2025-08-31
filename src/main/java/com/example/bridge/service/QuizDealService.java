@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 @Service
 public class QuizDealService {
@@ -36,5 +38,38 @@ public class QuizDealService {
             entity.setAuctionJson(String.join(",", auction));
         }
         return repository.save(entity);
+    }
+
+    public List<QuizDeal> listRecent(int limit) {
+        int effectiveLimit = Math.max(1, Math.min(limit, 1000));
+        return repository.findAll(
+                PageRequest.of(0, effectiveLimit, Sort.by(Sort.Direction.DESC, "createdAt"))
+        ).getContent();
+    }
+
+    public String toCsv(List<QuizDeal> deals) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("id,createdAt,dealer,northHand,eastHand,southHand,westHand,convention,auctionJson\n");
+        for (QuizDeal d : deals) {
+            sb.append(safe(d.getId()))
+              .append(',').append(safe(d.getCreatedAt()))
+              .append(',').append(escape(d.getDealer() != null ? d.getDealer().name() : null))
+              .append(',').append(escape(d.getNorthHand()))
+              .append(',').append(escape(d.getEastHand()))
+              .append(',').append(escape(d.getSouthHand()))
+              .append(',').append(escape(d.getWestHand()))
+              .append(',').append(escape(d.getConvention()))
+              .append(',').append(escape(d.getAuctionJson()))
+              .append('\n');
+        }
+        return sb.toString();
+    }
+
+    private String safe(Object o) { return o == null ? "" : o.toString(); }
+    private String escape(String s) {
+        if (s == null) return "";
+        boolean mustQuote = s.contains(",") || s.contains("\n") || s.contains("\"");
+        String t = s.replace("\"", "\"\"");
+        return mustQuote ? ("\"" + t + "\"") : t;
     }
 }
