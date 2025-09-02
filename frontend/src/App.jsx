@@ -83,6 +83,24 @@ function App() {
     const south = deal?.southHand
     const west = deal?.westHand
     const dealer = deal?.dealer
+    const convention = deal?.convention
+    const createdAt = deal?.createdAt
+    // Parse auction from JSON array or fallback comma-separated string
+    const rawAuction = deal?.auctionJson
+    let auction = []
+    try {
+      if (rawAuction) {
+        if (typeof rawAuction === 'string' && rawAuction.trim().startsWith('[')) {
+          auction = JSON.parse(rawAuction)
+        } else if (typeof rawAuction === 'string') {
+          auction = rawAuction.split(',').map(s => s.trim()).filter(Boolean)
+        } else if (Array.isArray(rawAuction)) {
+          auction = rawAuction
+        }
+      }
+    } catch (_) {
+      // ignore parse errors, leave auction empty
+    }
     return (
       <div style={{
         border: '1px solid #ddd',
@@ -90,8 +108,25 @@ function App() {
         padding: 12,
         background: '#fff',
       }}>
-        <div style={{ fontSize: 12, marginBottom: 8, color: '#555' }}>
-          <strong>Dealer:</strong> {dealer || '—'}
+        <div style={{ fontSize: 12, marginBottom: 8, color: '#555', display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <span><strong>Dealer:</strong> {dealer || '—'}</span>
+          {convention && (
+            <span style={{
+              padding: '2px 6px',
+              border: '1px solid #cfe6cf',
+              background: '#eef6ee',
+              borderRadius: 999,
+              color: '#0b5d36',
+              fontWeight: 600
+            }} title="Bidding convention">
+              {convention}
+            </span>
+          )}
+          {createdAt && (
+            <span title={createdAt} style={{ color: '#666' }}>
+              {formatDateTime(createdAt)}
+            </span>
+          )}
         </div>
         <div style={{
           display: 'grid',
@@ -118,6 +153,33 @@ function App() {
             <HandDisplay hand={south} />
           </div>
         </div>
+        <div style={{ marginTop: 10, fontSize: 12 }}>
+          <strong>Auction:</strong>{' '}
+          {auction.length ? (
+            <span style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 6 }}>
+              {auction.map((b, idx) => (
+                <span
+                  key={idx}
+                  style={{
+                    display: 'inline-block',
+                    padding: '2px 6px',
+                    borderRadius: 999,
+                    border: '1px solid #ddd',
+                    background: '#f9f9f9',
+                    color: bidColor(b) || '#111',
+                    fontWeight: 600,
+                    lineHeight: 1.2
+                  }}
+                  title={b}
+                >
+                  {formatBidLabel(b)}
+                </span>
+              ))}
+            </span>
+          ) : (
+            <span>—</span>
+          )}
+        </div>
       </div>
     )
   }
@@ -130,6 +192,16 @@ function App() {
       if (points[ch]) total += points[ch]
     }
     return total
+  }
+
+  const formatDateTime = (iso) => {
+    try {
+      const d = new Date(iso)
+      if (isNaN(d.getTime())) return iso
+      return d.toLocaleString()
+    } catch (_) {
+      return iso || ''
+    }
   }
 
   const fetchQuiz = async () => {
