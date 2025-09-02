@@ -7,6 +7,11 @@ function App() {
   const [proposedBid, setProposedBid] = useState('')
   const [result, setResult] = useState(null)
   const [selectedConvention, setSelectedConvention] = useState('')
+  const [showDealsModal, setShowDealsModal] = useState(false)
+  const [deals, setDeals] = useState([])
+  const [dealsLoading, setDealsLoading] = useState(false)
+  const [dealsError, setDealsError] = useState('')
+  const [dealsLimit, setDealsLimit] = useState(50)
   const CONV_KEY = 'bbq.convention'
 
   const BID_OPTIONS = React.useMemo(() => {
@@ -17,6 +22,21 @@ function App() {
     }
     return opts
   }, [])
+
+  const fetchRecentDeals = async (limit = dealsLimit) => {
+    try {
+      setDealsLoading(true)
+      setDealsError('')
+      const res = await fetch(`/api/deals/recent?limit=${encodeURIComponent(limit)}`)
+      if (!res.ok) throw new Error(`Failed to load deals (${res.status})`)
+      const data = await res.json()
+      setDeals(Array.isArray(data) ? data : [])
+    } catch (e) {
+      setDealsError(e.message || 'Failed to load recent deals')
+    } finally {
+      setDealsLoading(false)
+    }
+  }
 
   const formatBidLabel = (b) => {
     if (b === 'PASS') return 'PASS'
@@ -52,6 +72,52 @@ function App() {
             <span>{r.text && r.text !== '-' ? r.text : '—'}</span>
           </div>
         ))}
+      </div>
+    )
+  }
+
+  // Compact table layout for a full bridge deal (N/W/E/S)
+  const DealDiagram = ({ deal }) => {
+    const north = deal?.northHand
+    const east = deal?.eastHand
+    const south = deal?.southHand
+    const west = deal?.westHand
+    const dealer = deal?.dealer
+    return (
+      <div style={{
+        border: '1px solid #ddd',
+        borderRadius: 8,
+        padding: 12,
+        background: '#fff',
+      }}>
+        <div style={{ fontSize: 12, marginBottom: 8, color: '#555' }}>
+          <strong>Dealer:</strong> {dealer || '—'}
+        </div>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr 1fr',
+          gridTemplateRows: 'auto auto auto',
+          gap: 8,
+          alignItems: 'center',
+          justifyItems: 'center'
+        }}>
+          <div style={{ gridColumn: '2 / 3' }}>
+            <div style={{ textAlign: 'center', fontWeight: 600, marginBottom: 4 }}>North</div>
+            <HandDisplay hand={north} />
+          </div>
+          <div style={{ gridColumn: '1 / 2', gridRow: '2 / 3' }}>
+            <div style={{ textAlign: 'center', fontWeight: 600, marginBottom: 4 }}>West</div>
+            <HandDisplay hand={west} />
+          </div>
+          <div style={{ gridColumn: '3 / 4', gridRow: '2 / 3' }}>
+            <div style={{ textAlign: 'center', fontWeight: 600, marginBottom: 4 }}>East</div>
+            <HandDisplay hand={east} />
+          </div>
+          <div style={{ gridColumn: '2 / 3', gridRow: '3 / 4' }}>
+            <div style={{ textAlign: 'center', fontWeight: 600, marginBottom: 4 }}>South</div>
+            <HandDisplay hand={south} />
+          </div>
+        </div>
       </div>
     )
   }
@@ -139,6 +205,15 @@ function App() {
         <button onClick={fetchQuiz} disabled={loading} style={{ padding: '6px 12px' }}>
           {loading ? 'Loading…' : 'New Question'}
         </button>
+        <button
+          onClick={() => {
+            setShowDealsModal(true)
+            if (!deals.length) fetchRecentDeals()
+          }}
+          style={{ padding: '6px 12px', marginLeft: 8 }}
+        >
+          Recent Deals
+        </button>
       </div>
 
       {loading && <p>Loading quiz…</p>}
@@ -209,6 +284,68 @@ function App() {
               <p><strong>Explanation:</strong> {result.explanation}</p>
             </div>
           )}
+        </div>
+      )}
+
+      {showDealsModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(0,0,0,0.4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 9999
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowDealsModal(false)
+          }}
+        >
+          <div style={{
+            width: 'min(1000px, 96vw)',
+            maxHeight: '90vh',
+            background: 'var(--panel-bg)',
+            borderRadius: 12,
+            boxShadow: '0 12px 32px rgba(0,0,0,0.35)',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid #ddd' }}>
+              <h2 style={{ margin: 0 }}>Recent Deals</h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <label style={{ fontSize: 14 }}>
+                  Show:
+                  <select
+                    value={dealsLimit}
+                    onChange={(e) => {
+                      const v = Number(e.target.value) || 50
+                      setDealsLimit(v)
+                      fetchRecentDeals(v)
+                    }}
+                    style={{ marginLeft: 6, padding: '4px 6px' }}
+                  >
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                  </select>
+                </label>
+                <button onClick={() => setShowDealsModal(false)} style={{ padding: '6px 10px' }}>Close</button>
+              </div>
+            </div>
+            <div style={{ padding: 16, overflow: 'auto' }}>
+              {dealsLoading && <p>Loading deals…</p>}
+              {dealsError && <p style={{ color: 'crimson' }}>{dealsError}</p>}
+              {!dealsLoading && !dealsError && (!deals || deals.length === 0) && (
+                <p>No deals found.</p>
+              )}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
+                {deals && deals.map((d) => (
+                  <DealDiagram key={d.id} deal={d} />
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
